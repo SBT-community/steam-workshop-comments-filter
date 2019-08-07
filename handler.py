@@ -17,7 +17,7 @@ def log(text: str, printdate: bool = True, printmessage: bool = True, writetofil
     """
 
     if printdate:
-        localtime = time.strftime("%d.%m.%YT%H:%M:%S", time.localtime(time.time()))
+        localtime = time.strftime("%d.%m.%Y | %H:%M:%S", time.localtime(time.time()))
         message = "[AntiGay] {} ({})".format(text, localtime)
     else:
         message = "[AntiGay] {}".format(text)
