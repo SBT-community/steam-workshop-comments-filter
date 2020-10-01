@@ -35,7 +35,7 @@ def log(text: str, printdate: bool = True, printmessage: bool = True, writetofil
 
 class Handler:
     def __init__(self, login: str, password: str, content_id: str, author_id: str, words_blacklist: tuple,
-                 users_blacklist: tuple = (), users_whitelist: tuple = ()) -> None:
+                 users_blacklist: tuple = (), users_whitelist: tuple = (), links_blacklist: tuple = ()) -> None:
 
         self.__user = wa.WebAuth(login, password)
         self.__session = None
@@ -45,6 +45,7 @@ class Handler:
         self.USERS_BLACKLIST = users_blacklist
         self.USERS_WHITELIST = users_whitelist
         self.WORDS_BLACKLIST = words_blacklist
+        self.LINKS_BLACKLIST = links_blacklist
 
         self.set_session()
 
@@ -157,8 +158,23 @@ class Handler:
                     mini=mini_profile_id))
                 log("Deleting comment (Text: {text}, GID: {gid})".format(text=text, gid=gid_comment))
                 self.delete_comment(gid_comment)
+                continue
 
-            # And now looking for blacklist words in comment and delete it if found something
+            # Or delete if comment contains blacklisted link
+            links = [link.get('href') for link in comment.find_all('a', href=True)]
+            bad_links = [link for link in links if link in self.LINKS_BLACKLIST]
+            if len(bad_links) > 0:
+                log("A fagot found (Name: {name}, Steam Link: {link}, "
+                    "Mini Profile Id: {mini}, Bad Links: {bad_links})".format(
+                        name=profile_name,
+                        link=profile_link,
+                        mini=mini_profile_id,
+                        bad_links=bad_links))
+                log("Deleting comment (Text: {text}, GID: {gid})".format(text=text, gid=gid_comment))
+                self.delete_comment(gid_comment)
+                continue
+
+            # Or looking for blacklist words in comment and delete it if found something
             for word in self.WORDS_BLACKLIST:
                 if text.lower().find(word) != -1:
                     log("A fagot found (Name: {name}, Steam Link: {link}, Mini Profile Id: {mini})".format(
