@@ -1,5 +1,6 @@
 import settings
 from handler import *
+import random
 
 
 def main():
@@ -12,12 +13,13 @@ def main():
             settings.author_id,
             settings.words_blacklist,
             settings.users_blacklist,
-            settings.users_whitelist
+            settings.users_whitelist,
+            settings.links_blacklist
         )
         log("Working..")
 
         while True:
-            time.sleep(5)
+            time.sleep(random.randint(settings.checking_interval_sec_min, settings.checking_interval_sec_max))
             handler.parse_comments()
     except (KeyboardInterrupt, SystemExit):
         log("Shutting down")
